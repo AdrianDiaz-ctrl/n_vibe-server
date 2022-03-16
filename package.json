@@ -1,0 +1,21 @@
+{
+  "name": "proyecto_nvibe_server",
+  "version": "1.0.0",
+  "description": "server de n-vibe",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Adrian Diaz",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "express-session": "^1.17.2",
+    "mysql": "^2.18.1"
+  }
+}
