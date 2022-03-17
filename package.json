@@ -9,6 +9,7 @@
   "author": "Adrian Diaz",
   "license": "ISC",
   "devDependencies": {
+    "cors": "^2.8.5",
     "nodemon": "^2.0.15"
   },
   "dependencies": {
