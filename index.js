@@ -59,15 +59,13 @@ app.post('/register', async (req, res) => {
 })
 
 app.post('/login', async (req, res) => {
-    const user = req.body.user;
-    const pass = req.body.pass;
-
-    let passwordHash = await bcrypt.hash(pass, 8)
+    const user = req.body.correo;
+    const pass = req.body.password;
 
     if(user && pass) {
         connection.query('SELECT * FROM users WHERE user = ?', [user], async(error, results)=>{
             if(results.length == 0 || !(await bcrypt.compare(pass, results[0].pass))){
-                res.send('USUARIOS O PASSWORD INCORRECT')
+                res.send('USUARIOS O PASSWORD INCORRECT', error)
             }else{
                 req.session.loggedin = true;
                 res.send('LOGIN CORRECT')
