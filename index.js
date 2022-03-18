@@ -58,19 +58,22 @@ app.post('/register', async (req, res) => {
     }
 })
 
-app.post('/login', async (req, res) => {
-    const user = req.body.user;
-    const pass = req.body.pass;
-
-    let passwordHash = await bcrypt.hash(pass, 8)
+app.post('/login', (req, res) => {
+    const user = req.body.correo;
+    const pass = req.body.password;
 
     if(user && pass) {
-        connection.query('SELECT * FROM users WHERE user = ?', [user], async(error, results)=>{
-            if(results.length == 0 || !(await bcrypt.compare(pass, results[0].pass))){
+        connection.query('SELECT * FROM socio WHERE correo = ?', [user], async(error, results)=>{
+
+            let compare = await bcrypt.compare(pass, results[0].contraseña)
+
+            if(results.length == 0 || !compare){
                 res.send('USUARIOS O PASSWORD INCORRECT')
+                console.log("USUARIOS O PASSWORD INCORRECT")
             }else{
                 req.session.loggedin = true;
                 res.send('LOGIN CORRECT')
+                console.log("bien")
             }
         })
     }
