@@ -34,41 +34,48 @@ app.post('/register', async (req, res) => {
     const nombre = req.body.nombre;
     const edad = req.body.edad;
     const ocupacion = req.body.ocupacion;
+
     const correo = req.body.correo;
     const pass = req.body.password;
     let passwordHash = await bcrypt.hash(pass, 8)
 
-    if(nombre.length === 0 || edad.length === 0 || ocupacion.length === 0 || correo.length === 0 || pass.length === 0){
-        res.send("Error, llene todos los campos")
+    if(correo === connection.query(`SELECT correo FROM usuarios WHERE correo = ${correo}`) ){
+        console.log("error, duplicado")
     }else{
-        connection.query("INSERT INTO socio SET ?", {
+        connection.query("INSERT INTO usuarios SET ?", {
             nombre: nombre, 
             correo: correo, 
             edad: edad,
             ocupacion: ocupacion, 
             contraseña: passwordHash
+
         }, async (err, resul) => {
             if(err){console.log(err)}
             else{
                 console.log("todo bien")
                 res.send('registro CORRECT')
             }
-            
         })
     }
 })
 
-app.post('/login', async (req, res) => {
+app.post('/login', (req, res) => {
     const user = req.body.correo;
     const pass = req.body.password;
 
     if(user && pass) {
-        connection.query('SELECT * FROM users WHERE user = ?', [user], async(error, results)=>{
-            if(results.length == 0 || !(await bcrypt.compare(pass, results[0].pass))){
-                res.send('USUARIOS O PASSWORD INCORRECT', error)
+        connection.query('SELECT * FROM usuarios WHERE correo = ?', [user], async(error, results)=>{
+
+            let compare = await bcrypt.compare(pass, results[0].contraseña)
+
+            if(results.length == 0 || !compare){                
+                console.log("USUARIOS O PASSWORD INCORRECT")
+                return res.json({redirect: '/register'})
             }else{
                 req.session.loggedin = true;
-                res.send('LOGIN CORRECT')
+                console.log("Login correcto")
+                return res.json({redirect: '/home'})
+                // return res.json({redirect: "/home"})
             }
         })
     }
@@ -85,6 +92,11 @@ app.post('/login', async (req, res) => {
 //         })
 //     }
 // })
+
+app.get('/data', (req, res) => {
+    const consulta = connection.query("SELECT * FROM usuarios")
+    console.log(consulta)
+})
 
 app.get('/logout', (req, res) => {
     req.session.destroy(()=>{
