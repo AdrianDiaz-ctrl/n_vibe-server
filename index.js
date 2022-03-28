@@ -14,7 +14,8 @@ const connection = require('./database/db')
 // import router from "../routes/index.js";
 
 /* Encript */
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs');
+const { redirect } = require('express/lib/response');
 
 app.use(session({
     secret: 'secret',
@@ -40,6 +41,7 @@ app.post('/register', async (req, res) => {
 
     if(nombre.length === 0 || edad.length === 0 || ocupacion.length === 0 || correo.length === 0 || pass.length === 0){
         res.send("Error, llene todos los campos")
+        console.log("error")
     }else{
         connection.query("INSERT INTO socio SET ?", {
             nombre: nombre, 
@@ -68,15 +70,25 @@ app.post('/login', (req, res) => {
             let compare = await bcrypt.compare(pass, results[0].contraseña)
 
             if(results.length == 0 || !compare){
-                res.send('USUARIOS O PASSWORD INCORRECT')
                 console.log("USUARIOS O PASSWORD INCORRECT")
+                return res.json({redirect: '/login'})
             }else{
                 req.session.loggedin = true;
-                res.send('LOGIN CORRECT')
                 console.log("bien")
+                return res.json({redirect: '/home'})
             }
         })
     }
+})
+
+app.get('/getData', (req, res) => {
+    connection.query("SELECT id, nombre, edad, ocupacion FROM socio", function (err, rows) {
+        if (!err){ 
+            res.send(JSON.stringify(rows))
+        }else{
+            console.log("Error" + err)
+        }
+    })
 })
 
 // app.get('/', (req, res) => {
